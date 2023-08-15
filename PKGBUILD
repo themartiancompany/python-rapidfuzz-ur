@@ -3,7 +3,7 @@
 # Contributor: Caltlgin Stsodaat <contact@fossdaily.xyz>
 
 pkgname=python-rapidfuzz
-pkgver=3.1.2
+pkgver=3.2.0
 pkgrel=1
 pkgdesc='Rapid fuzzy string matching in Python using various string metrics'
 arch=('x86_64')
@@ -24,7 +24,7 @@ makedepends=(
 )
 checkdepends=('python-hypothesis' 'python-pandas' 'python-pytest')
 optdepends=('python-numpy')
-_commit='b23067f659c605ba6ca31df823d1a2603c258b6b'
+_commit='ece13872864f63173171601ae39f80a527c5059c'
 source=(
   "$pkgname::git+$url#commit=$_commit"
   'github.com-taskflow-taskflow::git+https://github.com/taskflow/taskflow'
