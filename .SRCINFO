@@ -1,0 +1,28 @@
+pkgbase = python-rapidfuzz
+	pkgdesc = Rapid fuzzy string matching in Python using various string metrics
+	pkgver = 3.4.0
+	pkgrel = 1
+	url = https://github.com/maxbachmann/rapidfuzz
+	arch = x86_64
+	license = MIT
+	checkdepends = python-hypothesis
+	checkdepends = python-pandas
+	checkdepends = python-pytest
+	makedepends = git
+	makedepends = python-build
+	makedepends = python-installer
+	makedepends = cython
+	makedepends = python-scikit-build
+	makedepends = rapidfuzz-cpp
+	depends = glibc
+	depends = gcc-libs
+	depends = python
+	optdepends = python-numpy
+	source = python-rapidfuzz::git+https://github.com/maxbachmann/rapidfuzz#commit=1ccb012e50e819f0dc3ed9b20185c61d8e4b308c
+	source = github.com-taskflow-taskflow::git+https://github.com/taskflow/taskflow
+	source = remove-version-constraints.patch
+	b2sums = SKIP
+	b2sums = SKIP
+	b2sums = db458ca7daab8c2004fe84384fe3aa1f1403f58e59ffb7108617ee5b9bfb4905726c23237a8e4303220a29d8b4edaa992fabafab8ae72f5067adce06bf0afed2
+
+pkgname = python-rapidfuzz
