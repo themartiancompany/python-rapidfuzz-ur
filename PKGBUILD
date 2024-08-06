@@ -9,6 +9,11 @@
 _os="$( \
   uname \
     -o)"
+_pip='false'
+_build='true'
+[[ "${_os}" == "Android" ]] && \
+  _pip='true'
+  _build='false'
 _py="python"
 _pkg=rapidfuzz
 pkgname="${_py}-${_pkg}"
@@ -51,11 +56,11 @@ makedepends=(
   "${_py}-scikit-build"
   'rapidfuzz-cpp'
 )
-if [[ "${_os}" == "Android" ]]; then
+if [[ "${_pip}" == "true" ]]; then
   makedepends+=(
     "${_py}-pip"
   )
-elif [[ "${_os}" == "GNU/Linux" ]]; then
+elif [[ "${_build}" == "true" ]]; then
   makedepends+=(
     "${_py}-build"
     "${_py}-installer"
@@ -131,7 +136,7 @@ build() {
   fi
   # CMAKE_CXX_FLAGS="-fuse-ld=lld" \
   # LDFLAGS="${_ldflags[*]}" \
-  if [[ "${_os}" == "GNU/Linux" ]]; then
+  if [[ "${_build}" == "true" ]]; then
     # RAPIDFUZZ_BUILD_EXTENSION=1 \
     "${_py}" \
       -m \
@@ -173,21 +178,25 @@ package() {
          "import site; print(site.getsitepackages()[0])")
   cd \
     "${pkgname}"
-  if [[ "${_os}" == "Android" ]]; then
+  if [[ "${_pip}" == "true" ]]; then
     pip \
       install \
       . \
       --root="${pkgdir}"
       # --strip-file-prefix="${pkgdir}"
     tree \
-      "${pkgdir}/${_site_packages}/${_pkg}" \
-    mkdir \
-      -p \
-      "${pkgdir}/usr/lib/python${_python_version}/site-packages"
-    mv \
-      "${pkgdir}/${_site_packages}/${pkg}" \
-      "${pkgdir}/usr/lib/python${_python_version}/site-packages/${_pkg}"
-  elif [[ "${_os}" == "GNU/Linux" ]]; then
+      "${pkgdir}/${_site_packages}/${_pkg}"
+    if [[ "${_pip}" == "true" ]]; then
+      mkdir \
+        -p \
+        "${pkgdir}/usr/lib/python${_python_version}/site-packages"
+      mv \
+        "${pkgdir}/${_site_packages}/"* \
+        "${pkgdir}/usr/lib/python${_python_version}/site-packages" || \
+        true
+    fi || \
+      true
+  elif [[ "${_build}" == "true" ]]; then
     "${_py}" \
       -m \
         installer \
@@ -198,7 +207,7 @@ package() {
   install \
     -vDm644 \
     -t \
-    "${pkgdir}/usr/share/doc/$pkgname" \
+    "${pkgdir}/usr/share/doc/${pkgname}" \
     README.md
   install \
     -d \
