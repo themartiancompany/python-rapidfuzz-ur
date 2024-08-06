@@ -163,12 +163,10 @@ package() {
   local \
     _site_packages \
     _python_version
-  python_version=$( \
+  _python_version="$( \
     "${_py}" \
       -c \
-     'import sys; print(".".join(map(str, sys.version_info[:2])))'
-  )
- 
+     'import sys; print(".".join(map(str, sys.version_info[:2])))')"
   _site_packages=$( \
     "${_py}" \
        -c \
