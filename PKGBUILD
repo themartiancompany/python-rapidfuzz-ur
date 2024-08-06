@@ -81,7 +81,7 @@ b2sums=(
 
 pkgver() {
   cd \
-    "$pkgname"
+    "${pkgname}"
   git \
     describe \
       --tags | \
@@ -144,7 +144,7 @@ build() {
 
 check() {
   cd \
-    "$pkgname"
+    "${pkgname}"
   "${_py}" \
     -m \
       venv \
@@ -182,7 +182,7 @@ package() {
       --root="${pkgdir}"
       # --strip-file-prefix="${pkgdir}"
     tree \
-      "${pkgdir}/${_site_packages}/${pkgname}" \
+      "${pkgdir}/${_site_packages}/${_pkg}" \
     mkdir \
       -p \
       "${pkgdir}/usr/lib/python${_python_version}/site-packages"
