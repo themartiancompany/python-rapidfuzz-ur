@@ -37,29 +37,51 @@ makedepends=(
   'python-scikit-build'
   'rapidfuzz-cpp'
 )
-checkdepends=('python-hypothesis' 'python-pandas' 'python-pytest')
-optdepends=('python-numpy')
+checkdepends=(
+  'python-hypothesis'
+  'python-pandas'
+  'python-pytest'
+)
+optdepends=(
+  'python-numpy'
+)
 _commit='26917be34e943fd082f13f3106b84b4c27a7f56a'
 source=(
-  "$pkgname::git+$url#commit=$_commit"
+  "${pkgname}::git+${url}#commit=${_commit}"
   'github.com-taskflow-taskflow::git+https://github.com/taskflow/taskflow'
 )
-b2sums=('SKIP'
-        'SKIP')
+b2sums=(
+  'SKIP'
+  'SKIP'
+)
 
 pkgver() {
-  cd "$pkgname"
-
-  git describe --tags | sed 's/^v//'
+  cd \
+    "$pkgname"
+  git \
+    describe \
+      --tags | \
+    sed \
+      's/^v//'
 }
 
 prepare() {
-  cd "$pkgname"
-
+  cd \
+    "$pkgname"
   # prepare git submodules
-  git submodule init extern/taskflow
-  git config submodule.extern/taskflow.url "$srcdir/github.com-taskflow-taskflow"
-  git -c protocol.file.allow=always submodule update
+  git \
+    submodule \
+      init \
+        extern/taskflow
+  git \
+    config \
+      submodule.extern/taskflow.url \
+      "${srcdir}/github.com-taskflow-taskflow"
+  git \
+    -c \
+      protocol.file.allow=always \
+    submodule \
+      update
 }
 
 build() {
@@ -78,13 +100,19 @@ check() {
 }
 
 package() {
-  cd "$pkgname"
-
-  python -m installer --destdir="$pkgdir" dist/*.whl
-
+  cd \
+    "$pkgname"
+  python \
+    -m \
+      installer \
+    --destdir="${pkgdir}" \
+    dist/*.whl
   # documentation
-  install -vDm644 -t "$pkgdir/usr/share/doc/$pkgname" README.md
-
+  install \
+    -vDm644 \
+    -t \
+    "${pkgdir}/usr/share/doc/$pkgname" \
+    README.md
   # symlink license file
   local site_packages=$(python -c "import site; print(site.getsitepackages()[0])")
   install -d "$pkgdir/usr/share/licenses/$pkgname"
