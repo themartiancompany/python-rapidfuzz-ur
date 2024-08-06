@@ -37,8 +37,10 @@ depends=(
 [[ "${_os}" == "Android" ]] && \
   depends+=(
     'ndk-sysroot'
+    # 'binutils-gold'
+    # 'llvmgold'
   )
-[[ "${_os}" == "Android" ]] && \
+[[ "${_os}" == "GNU/Linux" ]] && \
   depends+=(
     'gcc-libs'
     'glibc'
@@ -46,11 +48,19 @@ depends=(
 makedepends=(
   'cython'
   'git'
-  "${_py}-build"
-  "${_py}-installer"
   "${_py}-scikit-build"
   'rapidfuzz-cpp'
 )
+if [[ "${_os}" == "Android" ]]; then
+  makedepends+=(
+    "${_py}-pip"
+  )
+elif [[ "${_os}" == "GNU/Linux" ]]; then
+  makedepends+=(
+    "${_py}-build"
+    "${_py}-installer"
+  )
+fi
 checkdepends=(
   "${_py}-hypothesis"
   "${_py}-pandas"
@@ -81,7 +91,7 @@ pkgver() {
 
 prepare() {
   cd \
-    "$pkgname"
+    "${pkgname}"
   # prepare git submodules
   git \
     submodule \
@@ -96,6 +106,9 @@ prepare() {
       protocol.file.allow=always \
     submodule \
       update
+  echo \
+    "add_link_options('-fuse-ld=lld')" >> \
+    "boh"
 }
 
 build() {
@@ -103,19 +116,30 @@ build() {
     _ldflags=()
   cd \
     "${pkgname}"
-  _ldflags+=(
-    "${LDFLAGS}"
-    '-fuse-ld=lld'
-  )
-  export \
-    LDFLAGS="${_ldflags[*]}"
-  LDFLAGS="${_ldflags[*]}" \
-  RAPIDFUZZ_BUILD_EXTENSION=1 \
-  "${_py}" \
-    -m \
-      build \
-    --wheel \
-    --no-isolation
+  if [[ "${_os}" == "Android" ]]; then
+    _ldflags+=(
+      "${LDFLAGS}"
+      '-fuse-ld=lld'
+    )
+    CMAKE_CXX_FLAGS="-fuse-ld=lld"
+    export \
+      CC="cc" \
+      CXX="clang++" \
+      CMAKE_CXX_FLAGS="-fuse-ld=lld" \
+      LDFLAGS="${_ldflags[*]}" \
+      # RAPIDFUZZ_BUILD_EXTENSION=1
+  fi
+  # CMAKE_CXX_FLAGS="-fuse-ld=lld" \
+  # LDFLAGS="${_ldflags[*]}" \
+  if [[ "${_os}" == "GNU/Linux" ]]; then
+    # RAPIDFUZZ_BUILD_EXTENSION=1 \
+    "${_py}" \
+      -m \
+        build \
+      --wheel \
+      --no-isolation
+  fi || \
+    true
 }
 
 check() {
@@ -123,7 +147,7 @@ check() {
     "$pkgname"
   "${_py}" \
     -m \
-     kvenv \
+      venv \
     --system-site-packages \
     test-env
   "test-env/bin/${_py}" \
@@ -137,25 +161,47 @@ check() {
 
 package() {
   local \
-    _site_packages
-  cd \
-    "$pkgname"
-  "${_py}" \
-    -m \
-      installer \
-    --destdir="${pkgdir}" \
-    dist/*.whl
+    _site_packages \
+    _python_version
+  python_version=$( \
+    "${_py}" \
+      -c \
+     'import sys; print(".".join(map(str, sys.version_info[:2])))'
+  )
+ 
+  _site_packages=$( \
+    "${_py}" \
+       -c \
+         "import site; print(site.getsitepackages()[0])")
+  ocd \
+    "${pkgname}"
+  if [[ "${_os}" == "Android" ]]; then
+    pip \
+      install \
+      . \
+      --root="${pkgdir}"
+      # --strip-file-prefix="${pkgdir}"
+    tree \
+      "${pkgdir}/${_site_packages}/${pkgname}" \
+    mkdir \
+      -p \
+      "${pkgdir}/usr/lib/python${_python_version}/site-packages"
+    mv \
+      "${pkgdir}/${_site_packages}/${pkg}" \
+      "${pkgdir}/usr/lib/python${_python_version}/site-packages/${_pkg}"
+  elif [[ "${_os}" == "GNU/Linux" ]]; then
+    "${_py}" \
+      -m \
+        installer \
+      --destdir="${pkgdir}" \
+      dist/*.whl
+  fi
   # documentation
   install \
     -vDm644 \
     -t \
     "${pkgdir}/usr/share/doc/$pkgname" \
     README.md
-  # symlink license file
-  _site_packages=$( \
-    "${_py}" \
-       -c \
-         "import site; print(site.getsitepackages()[0])")
   install \
     -d \
     "${pkgdir}/usr/share/licenses/${pkgname}"
