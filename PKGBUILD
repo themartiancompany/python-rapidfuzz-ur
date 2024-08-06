@@ -173,7 +173,7 @@ package() {
     "${_py}" \
        -c \
          "import site; print(site.getsitepackages()[0])")
-  ocd \
+  cd \
     "${pkgname}"
   if [[ "${_os}" == "Android" ]]; then
     pip \
