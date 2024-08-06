@@ -6,6 +6,9 @@
 # Contributor: Pekka Ristola <pekkarr [at] protonmail [dot] com>
 # Contributor: Caltlgin Stsodaat <contact@fossdaily.xyz>
 
+_os="$( \
+  uname \
+    -o)"
 _py="python"
 _pkg=rapidfuzz
 pkgname="${_py}-${_pkg}"
@@ -96,8 +99,17 @@ prepare() {
 }
 
 build() {
-  cd "$pkgname"
-
+  local \
+    _ldflags=()
+  cd \
+    "${pkgname}"
+  _ldflags+=(
+    "${LDFLAGS}"
+    '-fuse-ld=lld'
+  )
+  export \
+    LDFLAGS="${_ldflags[*]}"
+  LDFLAGS="${_ldflags[*]}" \
   RAPIDFUZZ_BUILD_EXTENSION=1 \
   "${_py}" \
     -m \
@@ -110,14 +122,22 @@ check() {
   cd \
     "$pkgname"
   "${_py}" \
-    -m venv \
+    -m \
+     kvenv \
     --system-site-packages \
     test-env
-  test-env/bin/python -m installer dist/*.whl
-  test-env/bin/python -m pytest
+  "test-env/bin/${_py}" \
+    -m \
+      installer \
+    dist/*.whl
+  "test-env/bin/${_py}" \
+    -m \
+      pytest
 }
 
 package() {
+  local \
+    _site_packages
   cd \
     "$pkgname"
   "${_py}" \
@@ -132,17 +152,16 @@ package() {
     "${pkgdir}/usr/share/doc/$pkgname" \
     README.md
   # symlink license file
-  local \
-   ksite_packages=$( \
-     python \
+  _site_packages=$( \
+    "${_py}" \
        -c \
          "import site; print(site.getsitepackages()[0])")
   install \
     -d \
-    "$pkgdir/usr/share/licenses/$pkgname"
+    "${pkgdir}/usr/share/licenses/${pkgname}"
   ln \
     -s \
-    "$site_packages/${pkgname#python-}-$pkgver.dist-info/LICENSE" \
-    "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+    "${_site_packages}/${_pkg}-${pkgver}.dist-info/LICENSE" \
+    "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
 
