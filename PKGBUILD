@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: AGPL-3.0
+#
+# Maintainer: Truocolo <truocolo@aol.com>
+# Maintainer: Pellegrino Prevete (tallero) <pellegrinoprevete@gmail.com>
 # Maintainer: George Rawlinson
 # Contributor: Pekka Ristola <pekkarr [at] protonmail [dot] com>
 # Contributor: Caltlgin Stsodaat <contact@fossdaily.xyz>
@@ -6,9 +10,20 @@ pkgname=python-rapidfuzz
 pkgver=3.6.2
 pkgrel=3
 pkgdesc='Rapid fuzzy string matching in Python using various string metrics'
-arch=('x86_64')
+arch=(
+  'x86_64'
+  'aarch64'
+  'arm'
+  'i686'
+  'pentium4'
+  'armv7l'
+  'mips'
+  'powerpc'
+)
 url='https://github.com/maxbachmann/rapidfuzz'
-license=('MIT')
+license=(
+  'MIT'
+)
 depends=(
   'glibc'
   'gcc-libs'
@@ -76,3 +91,4 @@ package() {
   ln -s "$site_packages/${pkgname#python-}-$pkgver.dist-info/LICENSE" \
     "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
+
