@@ -15,6 +15,15 @@ _build='true'
   _pip='true'
   _build='false'
 _py="python"
+_pyver="$( \
+  "${_py}" \
+    -V | \
+    awk \
+      '{print $2}')"
+_pymajver="${_pyver%.*}"
+_pyminver="${_pymajver#*.}"
+_pynextver="${_pymajver%.*}.$(( \
+  ${_pyminver} + 1))"
 _pkg=rapidfuzz
 pkgname="${_py}-${_pkg}"
 pkgver=3.6.2
@@ -77,7 +86,7 @@ optdepends=(
 _commit='26917be34e943fd082f13f3106b84b4c27a7f56a'
 source=(
   "${pkgname}::git+${url}#commit=${_commit}"
-  'github.com-taskflow-taskflow::git+https://github.com/taskflow/taskflow'
+  "github.com-taskflow-taskflow::git+${_http}/taskflow/taskflow"
 )
 b2sums=(
   'SKIP'
