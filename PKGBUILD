@@ -48,6 +48,7 @@ license=(
 depends=(
   "${_py}>=${_pymajver}"
   "${_py}<${_pynextver}"
+  "${_py}-importlib-metadata"
 )
 [[ "${_os}" == "Android" ]] && \
   depends+=(
